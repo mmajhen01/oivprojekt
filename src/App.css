@@ -4,17 +4,55 @@
   justify-content: center;
   flex-direction: column;
 }
+h1 {
+  color: #eeeee4;
+}
 
+img {
+  width: 10em;
+  background-color: transparent;
+  width: 4em;
+  height: 4em;
+}
+button {
+  background-color: #eeeee4;
+  border: none;
+  border-radius: 100px;
+  
+}
 .rezultat {
-  border-radius: 10px;
-  width: 40%;
+  border-radius: 20px;
+  width: 20%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 .good {
-  background-color: green;
+  background-color: #abdbe3;
 }
 .bad {
-  background-color: red;
+  background-color: #e28743;
 }
 .mid {
-  background-color: yellow;
+  background-color: #eab676;
+}
+
+.forma {
+  margin: 2em;
+  display: flex;
+  justify-content: center;
+  
+}
+
+.polje {
+  width: 50em;
+  height: 5em;
+  border-radius: 30px;
+  border: none;
+  margin-right: 5px;
+  padding-left: 30px;
+}
+
+body {
+  background-color: #154c79;
 }

@@ -67,12 +67,17 @@ export default function Telo() {
   }
 
   return (
-    <div className="container">
+    <div className={"container"}>
       <h1>Geslo checker</h1>
-      <form onSubmit={submitHandler}>
-        <input type="password" id="geslo" value={geslo} onChange={handleGesloChange} />
-        <button type="submit">Preveri geslo</button>
-      </form>
+      <div >
+        <form onSubmit={submitHandler} className={'forma'}>
+          <input className={"polje"} type="password" id="geslo" value={geslo} onChange={handleGesloChange} />
+          <button type="submit">
+            <img src={require("./isci.png")}></img>
+          </button>
+        </form>
+      </div>
+      
       <div className={`rezultat ${rezultat === 'Geslo ni bilo najdeno v bazi podatkov.' ? 'good' : 'bad'}`}>
       {rezultat && (
         <div>
