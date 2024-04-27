@@ -30,10 +30,40 @@ export default function Telo() {
     } catch (error) {
       console.error('Napaka:', error);
     }
+    setGeslo("");
   }
 
+  const [malaCrka, setMalaCrka] = useState(false);
+  const [velikaCrka, setVelikaCrka] = useState(false);
+  const [stevilka, setStevilka] = useState(false);
+  const [znak, setZnak] = useState(false);
+  const [stanje, setStanje] = useState("");
+
+  const [dovoljZnakov, setDovoljZnakov] = useState(false);
   function handleGesloChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setGeslo(event.target.value);
+    const novoGeslo = event.target.value;
+    setGeslo(novoGeslo);
+  
+    setMalaCrka(/[a-z]/.test(novoGeslo));
+    setVelikaCrka(/[A-Z]/.test(novoGeslo));
+    setStevilka(/[0-9]/.test(novoGeslo));
+    setZnak(/[^a-zA-Z0-9]/.test(novoGeslo));
+    setDovoljZnakov(novoGeslo.length >= 12);
+  
+    let pogoji = 0;
+    if (malaCrka) pogoji++;
+    if (velikaCrka) pogoji++;
+    if (stevilka) pogoji++;
+    if (znak) pogoji++;
+    if (dovoljZnakov) pogoji++;
+  
+    console.log(pogoji);
+  
+    if (pogoji >= 2 && pogoji < 5) {
+      setStanje('mid');
+    } else if(pogoji < 2){
+      setStanje('bad');
+    }
   }
 
   return (
@@ -43,12 +73,42 @@ export default function Telo() {
         <input type="password" id="geslo" value={geslo} onChange={handleGesloChange} />
         <button type="submit">Preveri geslo</button>
       </form>
+      <div className={`rezultat ${rezultat === 'Geslo ni bilo najdeno v bazi podatkov.' ? 'good' : 'bad'}`}>
       {rezultat && (
         <div>
           <h2>Rezultat:</h2>
           <p>{rezultat}</p>
         </div>
       )}
+      </div>
+
+      <div className={`rezultat ${stanje}`}>
+      {!stevilka && geslo.length > 0 && (
+        <div>
+          <p>Geslo potrebuje številko</p>
+        </div>
+      )}
+      {!malaCrka && geslo.length > 0 &&(
+        <div>
+          <p>Geslo potrebuje malo črko.</p>
+        </div>
+      )}
+      {!velikaCrka && geslo.length > 0 &&(
+        <div>
+          <p>Geslo potrebuje veliko črko</p>
+        </div>
+      )}
+      {!znak && geslo.length > 0 &&(
+        <div>
+          <p>Geslo potrebje poseben znak</p>
+        </div>
+      )}
+      {!dovoljZnakov && geslo.length > 0 &&(
+        <div>
+          <p>Geslo more imeti vsaj 12 znakov</p>
+        </div>
+      )}
+      </div>
     </div>
   );
 }

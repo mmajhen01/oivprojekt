@@ -4,3 +4,17 @@
   justify-content: center;
   flex-direction: column;
 }
+
+.rezultat {
+  border-radius: 10px;
+  width: 40%;
+}
+.good {
+  background-color: green;
+}
+.bad {
+  background-color: red;
+}
+.mid {
+  background-color: yellow;
+}
