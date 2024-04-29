@@ -4,6 +4,7 @@ import * as CryptoJS from 'crypto-js';
 export default function Telo() {
   const [geslo, setGeslo] = useState("");
   const [rezultat, setRezultat] = useState("");
+  const [rezultatSeznama, setRezultatSeznama] = useState("");
 
   async function submitHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,8 +31,24 @@ export default function Telo() {
     } catch (error) {
       console.error('Napaka:', error);
     }
+    preveriSeznamGesel();
     setGeslo("");
   }
+  function preveriSeznamGesel(){
+    fetch('http://localhost:3001/preveri-geslo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ geslo: geslo }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    setRezultatSeznama(data.message);
+  })
+  .catch(error => console.error('Napaka:', error));
+  console.log(rezultatSeznama);
+  } 
 
   const [malaCrka, setMalaCrka] = useState(false);
   const [velikaCrka, setVelikaCrka] = useState(false);
@@ -56,8 +73,6 @@ export default function Telo() {
     if (stevilka) pogoji++;
     if (znak) pogoji++;
     if (dovoljZnakov) pogoji++;
-  
-    console.log(pogoji);
   
     if (pogoji >= 2 && pogoji < 5) {
       setStanje('mid');
@@ -86,6 +101,16 @@ export default function Telo() {
         </div>
       )}
       </div>
+
+      <div className={`rezultat ${rezultatSeznama === 'Geslo je na seznamu pogostih gesel. Prosim izberite varnejše geslo.' ? 'bad' : 'good'}`}>
+      {rezultatSeznama && (
+        <div>
+          <h2>rezultatSeznama:</h2>
+          <p>{rezultatSeznama}</p>
+        </div>
+      )}
+      </div>
+
 
       <div className={`rezultat ${stanje}`}>
       {!stevilka && geslo.length > 0 && (
