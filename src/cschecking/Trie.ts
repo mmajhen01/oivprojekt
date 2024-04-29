@@ -29,20 +29,41 @@ export class Trie {
         node.isEndOfWord = true;
     }
 
-    private findWordsRecursive(node: TrieNode, prefix: string, threshold: number, targetWord: string, similarWords: string[]) {
+    logAllChildren() {
+        this._logChildrenRecursive(this.root, '');
+    }
+
+    private _logChildrenRecursive(node: TrieNode, prefix: string) {
         if (!node) return;
 
-        if (prefix.length > 0 && levenshteinDistance(prefix, targetWord) <= threshold) {
-            similarWords.push(prefix);
-        }
+        console.log(`Node at prefix "${prefix}": ${Object.keys(node.children)}`);
 
         for (const char in node.children) {
             const childNode = node.children[char];
             const newPrefix = prefix + char;
-            const distance = levenshteinDistance(newPrefix, targetWord);
+            this._logChildrenRecursive(childNode, newPrefix);
+        }
+    }
 
+
+    private findWordsRecursive(node: TrieNode, prefix: string, threshold: number, targetWord: string, similarWords: string[]) {
+        if (!node) return;
+
+        const distance = levenshteinDistance(prefix, targetWord);
+        if (prefix.length > 0 && distance <= threshold) {
+            similarWords.push(prefix);
+        }
+    
+        for (const char in node.children) {
+            const childNode = node.children[char];
+            const newPrefix = prefix + char;
+    
             if (distance <= threshold) {
                 this.findWordsRecursive(childNode, newPrefix, threshold, targetWord, similarWords);
+            } else {
+                // If the Levenshtein distance of the prefix exceeds the threshold,
+                // we don't need to explore further
+                break;
             }
         }
     }
@@ -52,4 +73,23 @@ export class Trie {
         this.findWordsRecursive(this.root, '', threshold, word, similarWords);
         return similarWords;
     }
+
+/*     getAllWords(): string[] {
+        const words: string[] = [];
+
+        // Recursive function to traverse the trie and collect words
+        function collectWords(node: TrieNode, prefix: string) {
+            if (node.isEndOfWord) {
+                words.push(prefix);
+            }
+            for (const char in node.children) {
+                collectWords(node.children[char], prefix + char);
+            }
+        }
+
+        // Start collecting words from the root
+        collectWords(this.root, '');
+
+        return words;
+    } */
 }

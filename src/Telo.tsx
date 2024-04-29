@@ -9,26 +9,30 @@ export default function Telo() {
   const [trie, setTrie] = useState<Trie | null>(null); // Initialize trie state
   
   async function handleFileSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+      event.preventDefault();
 
-    const formElement = event.target as HTMLFormElement;
-    const fileInput = formElement.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    if (!file) {
-      console.error('No file selected.');
-      return;
-    }
+      // file input
+      const formElement = event.target as HTMLFormElement;
+      const fileInput = formElement.querySelector('input[type="file"]') as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        console.error('No file selected.');
+        return;
+      }
 
-    try {
-      const text = await readFile(file);
-      console.log("text test:\n",text)
-      const dictionary = text.split('\n');
-      const trieInstance = new Trie();
-      dictionary.forEach(word => trieInstance.insert(word));
-      setTrie(trieInstance); 
-    } catch (error) {
-      console.error('Error reading file:', error);
-    }
+      try {
+        // read file & split by break
+        const text = await readFile(file);
+        console.log("test passwords:\n",text)
+        const dictionary = text.split('\n');
+        
+        // new trie & dictionary for each word
+        const trieInstance = new Trie();
+        dictionary.forEach(word => {trieInstance.insert(word)});
+        setTrie(trieInstance); 
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
   }
 
   function readFile(file: File): Promise<string> {
@@ -63,16 +67,22 @@ export default function Telo() {
         setRezultat('Geslo ni bilo najdeno v bazi podatkov.');
       }
 
-
-      console.log("geslo log za pred:", geslo)
-      if (trie) {
-        const threshold = 2;
-        const similarWords = trie.findSimilarWords(geslo, threshold);
-        console.log("similar words: ", similarWords);
-      } 
+      // if trie
 
     } catch (error) {
       console.error('Napaka:', error);
+    }
+
+    try{
+      trie?.logAllChildren()
+      console.log("input text:", geslo)
+      if (trie) {
+        const threshold = 2;
+        const similarWords = trie.findSimilarWords(geslo, threshold);
+        console.log("similar passowrds: ", similarWords);
+      } 
+    }catch(error){
+      console.error('Napaka pri True:', error);
     }
     
     
