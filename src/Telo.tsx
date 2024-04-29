@@ -1,9 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as CryptoJS from 'crypto-js';
+import { Trie } from './cschecking/Trie';
+
 
 export default function Telo() {
   const [geslo, setGeslo] = useState("");
   const [rezultat, setRezultat] = useState("");
+  const [trie, setTrie] = useState<Trie | null>(null); // Initialize trie state
+  
+  async function handleFileSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formElement = event.target as HTMLFormElement;
+    const fileInput = formElement.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+    if (!file) {
+      console.error('No file selected.');
+      return;
+    }
+
+    try {
+      const text = await readFile(file);
+      console.log("text test:\n",text)
+      const dictionary = text.split('\n');
+      const trieInstance = new Trie();
+      dictionary.forEach(word => trieInstance.insert(word));
+      setTrie(trieInstance); 
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
+  }
+
+  function readFile(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+      reader.readAsText(file);
+    });
+  }
 
   async function submitHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,10 +62,21 @@ export default function Telo() {
       } else {
         setRezultat('Geslo ni bilo najdeno v bazi podatkov.');
       }
+
+
+      console.log("geslo log za pred:", geslo)
+      if (trie) {
+        const threshold = 2;
+        const similarWords = trie.findSimilarWords(geslo, threshold);
+        console.log("similar words: ", similarWords);
+      } 
+
     } catch (error) {
       console.error('Napaka:', error);
     }
-    setGeslo("");
+    
+    
+  setGeslo("");
   }
 
   const [malaCrka, setMalaCrka] = useState(false);
@@ -43,7 +89,7 @@ export default function Telo() {
   function handleGesloChange(event: React.ChangeEvent<HTMLInputElement>) {
     const novoGeslo = event.target.value;
     setGeslo(novoGeslo);
-  
+
     setMalaCrka(/[a-z]/.test(novoGeslo));
     setVelikaCrka(/[A-Z]/.test(novoGeslo));
     setStevilka(/[0-9]/.test(novoGeslo));
@@ -69,6 +115,13 @@ export default function Telo() {
   return (
     <div className={"container"}>
       <h1>Geslo checker</h1>
+      <div>
+      <form onSubmit={handleFileSubmit}>
+        <input type="file" />
+        <button type="submit">Process File</button>
+      </form>
+      </div>
+
       <div >
         <form onSubmit={submitHandler} className={'forma'}>
           <input className={"polje"} type="password" id="geslo" value={geslo} onChange={handleGesloChange} />
