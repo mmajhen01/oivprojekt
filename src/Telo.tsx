@@ -6,43 +6,7 @@ import { Trie } from './cschecking/Trie';
 export default function Telo() {
   const [geslo, setGeslo] = useState("");
   const [rezultat, setRezultat] = useState("");
-  const [trie, setTrie] = useState<Trie | null>(null); // Initialize trie state
-  
-  async function handleFileSubmit(event: React.FormEvent<HTMLFormElement>) {
-      event.preventDefault();
-
-      // file input
-      const formElement = event.target as HTMLFormElement;
-      const fileInput = formElement.querySelector('input[type="file"]') as HTMLInputElement;
-      const file = fileInput?.files?.[0];
-      if (!file) {
-        console.error('No file selected.');
-        return;
-      }
-
-      try {
-        // read file & split by break
-        const text = await readFile(file);
-        console.log("test passwords:\n",text)
-        const dictionary = text.split('\n');
-        
-        // new trie & dictionary for each word
-        const trieInstance = new Trie();
-        dictionary.forEach(word => {trieInstance.insert(word)});
-        setTrie(trieInstance); 
-      } catch (error) {
-        console.error('Error reading file:', error);
-      }
-  }
-
-  function readFile(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-      reader.readAsText(file);
-    });
-  }
+  const [rezultatSeznama, setRezultatSeznama] = useState("");
 
   async function submitHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,22 +36,24 @@ export default function Telo() {
     } catch (error) {
       console.error('Napaka:', error);
     }
-
-    try{
-      trie?.logAllChildren()
-      console.log("input text:", geslo)
-      if (trie) {
-        const threshold = 2;
-        const similarWords = trie.findSimilarWords(geslo, threshold);
-        console.log("similar passowrds: ", similarWords);
-      } 
-    }catch(error){
-      console.error('Napaka pri True:', error);
-    }
-    
-    
-  setGeslo("");
+    preveriSeznamGesel();
+    setGeslo("");
   }
+  function preveriSeznamGesel(){
+    fetch('http://localhost:3001/preveri-geslo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ geslo: geslo }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    setRezultatSeznama(data.message);
+  })
+  .catch(error => console.error('Napaka:', error));
+  console.log(rezultatSeznama);
+  } 
 
   const [malaCrka, setMalaCrka] = useState(false);
   const [velikaCrka, setVelikaCrka] = useState(false);
@@ -112,8 +78,6 @@ export default function Telo() {
     if (stevilka) pogoji++;
     if (znak) pogoji++;
     if (dovoljZnakov) pogoji++;
-  
-    console.log(pogoji);
   
     if (pogoji >= 2 && pogoji < 5) {
       setStanje('mid');
@@ -149,6 +113,16 @@ export default function Telo() {
         </div>
       )}
       </div>
+
+      <div className={`rezultat ${rezultatSeznama === 'Geslo je na seznamu pogostih gesel. Prosim izberite varnejše geslo.' ? 'bad' : 'good'}`}>
+      {rezultatSeznama && (
+        <div>
+          <h2>rezultatSeznama:</h2>
+          <p>{rezultatSeznama}</p>
+        </div>
+      )}
+      </div>
+
 
       <div className={`rezultat ${stanje}`}>
       {!stevilka && geslo.length > 0 && (
